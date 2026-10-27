@@ -1,0 +1,6 @@
+# Never commit keys, local config or media; brand data lives in the UGC Library, not here.
+*.key
+config.local.env
+.DS_Store
+*.mp4
+*.mov

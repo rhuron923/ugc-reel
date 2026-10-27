@@ -1,0 +1,4 @@
+# Scripts must keep LF endings or bash fails on Windows checkouts.
+* text=auto eol=lf
+*.png binary
+*.jpg binary
