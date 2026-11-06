@@ -100,6 +100,39 @@ Whether a humanized caption set actually performs better on the platform is an o
 
 If you have notes on ad concepts that have worked (yours, or ones a peer brand shared), put them in `playbooks/` in your library and list them in your brand profile under "Concept playbooks". The skill reads them before writing any caption set, uses their principles and structures in your creator's voice, says which concept each reel draws on, and drops any line that breaks your claims rules. Caption variants default to a hook test: the same body, a different opener each.
 
+## Meta bulk upload (weekly)
+
+`bin/meta-upload.sh` turns a campaign's `Approved for testing/` folder into a sheet for Ads Manager's **Import ads in bulk**, so a week's ads go in with one import instead of one at a time. It reads Meta (read-only) and writes one local file; it never changes anything in Meta.
+
+**Once per person**
+
+1. Node 22.15 or newer (`node --version`).
+2. Create `~/.config/ugc-reel/meta.env` (on Windows `C:\Users\<you>\.config\ugc-reel\meta.env`) with the two values Ryan shares through the password manager:
+
+   ```
+   META_ACCESS_TOKEN=<read-only token>
+   META_AD_ACCOUNT_ID=1247526180638204
+   ```
+
+   The token only has `ads_read`: it can look up media IDs but cannot create, change or spend anything. Never put it in this folder or the UGC Library.
+
+**Each week**
+
+1. **Upload the media.** Copy the campaign's `Approved for testing/` files to a short folder such as `C:\Ads\` first (long paths upload as "untitled" or short names like `HOWONE~1.PNG`; the script matches short names, not "untitled"). **Videos:** Ads Manager › Media (https://adsmanager.facebook.com/adsmanager/media/?act=1247526180638204) › Upload; wait until each is processed. **Images and carousel cards:** upload from inside an ad (open any ad or a draft › Media › Add media › Upload), then close without saving. Images uploaded on the Media page land in the Business media library, which imports can't use ("The image you selected is not available"); the script lists any it finds there.
+2. **Set up the ad set.** Create or duplicate the target ad set in Ads Manager with its budget, audience and the active-subscriber exclusion (Controls › Legal and operational custom audience exclusions). Publish it paused with one ad in it.
+3. **Export one pattern ad.** Tick one ad in that ad set › Export/Import › **Export selected** (not "Export table data"). New ads copy its headline, text, link, CTA and placement groups.
+4. **Build the sheet.**
+
+   ```bash
+   bash ~/.claude/skills/ugc-reel/bin/meta-upload.sh "<campaign folder>" --pattern "<the export .xlsx>"
+   ```
+
+   Or ask Claude: "make the Meta upload sheet for this campaign". It writes `meta upload <date>.xlsx` into `Approved for testing/` and lists anything it could not find (upload it and run again), ads skipped because they already exist (add `--skip "<part of the name>"` for drafts you imported earlier, which the API cannot see), and notes on any carousels.
+5. **Import.** Ads Manager › Export/Import › **Import ads in bulk** › upload the sheet. The summary must say *created*, not *updated*. Then publish the drafts (they stay paused).
+6. **Fix what the import can't set.** Select the new ads › Edit › creative enhancements: turn **Products** off and check the other enhancements against the pattern ad. Preview the Feed and Stories placements of each ad, then turn them on.
+
+**How the sheet is built.** Each variant's `sz-1100x1080` and `sz-9x16` files become **one ad**, named with its `sz-1100x1080` name: the feed cut goes to feeds, in-stream, right column and search, and the 9x16 cut to Stories, Reels, Messenger and WhatsApp (WhatsApp always gets the 9x16, even when the pattern groups it with feeds). The pattern ad's copy belongs in its primary text (Body), not the Description. A variant with one size uses it everywhere. Videos get Meta's own thumbnail. Every ad is PAUSED. Files named `... - card N` become one **carousel** ad per variant, written to a separate `meta upload <date> - carousels.xlsx` (import it on its own, after the main file) as a plain carousel, not a flexible-format ad, cards in number order, built from the 1100x1080 cards (the 9x16 cards are left out); each card links to the pattern's landing page with its headline. After importing a carousel, check the card order and turn off "Show the best-performing cards first" when the cards tell a story. The sheet shows only the columns worth reviewing (names, copy, link, media IDs); the other ~600 are hidden and still import. Don't open and re-save the sheet as CSV in Excel: it turns long video IDs into rounded numbers.
+
 ## Folder layout
 
 ```
@@ -112,6 +145,7 @@ ugc-reel/
   bin/analyze.sh                local reference analysis
   bin/reformat.sh               feed reformat (1100x1080) with captions re-burned; also normalises existing footage
   bin/make-ass.py               caption JSON → .ass for burn-in
+  bin/meta-upload.sh / .mjs     Meta bulk-import sheet from Approved for testing/ (read-only on Meta)
   bin/config.env                defaults, no secrets (overridden by ~/.config/ugc-reel/config.env)
   references/                   engine facts, brand profile template, breakdown template, assembly recipes, ad naming, caption humanizer
 ```

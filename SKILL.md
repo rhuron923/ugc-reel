@@ -512,6 +512,14 @@ Edits are not approval. Revise, bump the version, record it. There is no cost li
 
 Then, for Routes A and C only, Stage 5's template question.
 
+# Stage 7 — Meta upload sheet (on request)
+
+**Trigger: the user asks for the Meta upload / bulk import sheet** for a campaign whose `Approved for testing/` set is filed. This stage reads Meta and writes one local file; it never creates, changes or publishes anything in Meta. The user does the import.
+
+1. **Prerequisites, checked in one message.** The user has (a) uploaded every file in `Approved for testing/` to the ad account's media library (Ads Manager › Media, not the Business Suite library), and (b) exported one existing ad from the target ad set with Export › Export selected (not "Export table data"). Ask for that export's path. The pattern ad should have the copy, link, CTA and placement groups the new ads should share; its creative enhancements do not carry over.
+2. **Run** `bash bin/meta-upload.sh "<campaign folder>" --pattern "<export.xlsx>"`, adding `--skip "<text>"` for ads already imported as drafts (drafts are invisible to the API). Credentials come from `~/.config/ugc-reel/meta.env`; if they are missing, point the user to README → Meta bulk upload and stop.
+3. **Report** what the script printed: the ads in the sheet, anything not found in the media library (upload, then re-run), skipped ads, and the carousel notes (card order, the "best-performing cards first" toggle). Then the import steps from README → Meta bulk upload, including publishing the drafts and switching Products off.
+
 ## Ground rules
 
 - Disclose missing tools, logins or evidence plainly; never claim a step ran when it did not.
