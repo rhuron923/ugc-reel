@@ -147,6 +147,7 @@ ugc-reel/
   bin/make-ass.py               caption JSON → .ass for burn-in
   bin/meta-upload.sh / .mjs     Meta bulk-import sheet from Approved for testing/ (read-only on Meta)
   bin/config.env                defaults, no secrets (overridden by ~/.config/ugc-reel/config.env)
+  references/meta-ads-manager-playbook.md   Grace Coffee Meta ad standards, e-book links/copy, build steps, current status
   references/                   engine facts, brand profile template, breakdown template, assembly recipes, ad naming, caption humanizer
 ```
 
